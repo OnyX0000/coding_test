@@ -1,5 +1,6 @@
--- 코드를 작성해주세요
-select distinct id, email, first_name, last_name
-from developers
-where (SKILL_CODE & 256 = 256 OR SKILL_CODE & 1024 = 1024)
-order by id asc
+SELECT DISTINCT a.ID, a.EMAIL, a.FIRST_NAME, a.LAST_NAME
+FROM DEVELOPERS a, SKILLCODES b
+WHERE 
+    (a.SKILL_CODE & b.CODE) > 0
+    AND b.NAME IN ("Python", "C#")
+ORDER BY a.ID;
