@@ -1,0 +1,5 @@
+-- 코드를 작성해주세요
+SELECT count(*) as FISH_COUNT
+FROM FISH_INFO a
+INNER JOIN FISH_NAME_INFO b on a.FISH_TYPE = b.FISH_TYPE
+where b.FISH_NAME = 'BASS' or b.FISH_NAME = 'SNAPPER'
