@@ -1,0 +1,23 @@
+-- 코드를 작성해주세요
+WITH RECURSIVE Gen as (
+    SELECT ID, 1 as GENERATION
+    FROM ECOLI_DATA
+    WHERE PARENT_ID is NULL
+    
+    UNION ALL
+    
+    SELECT e.ID, g.GENERATION + 1
+    FROM ECOLI_DATA e
+    JOIN Gen g on e.PARENT_ID = g.ID
+)
+SELECT  
+    COUNT(*) as COUNT,
+    GENERATION
+FROM Gen g
+WHERE NOT EXISTS (
+    SELECT ID
+    FROM ECOLI_DATA e
+    WHERE e.PARENT_ID = g.ID
+)
+GROUP BY 2
+ORDER BY 2
