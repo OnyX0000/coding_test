@@ -5,7 +5,7 @@ WITH T1 AS (
         SUM(CASE WHEN operation = 'Buy' THEN price ELSE 0 END) as total_buy,
         SUM(CASE WHEN operation = 'Sell' THEN price ELSE 0 END) as total_sell
     FROM Stocks
-    GROUP BY stock_name
+    GROUP BY 1
 )
 SELECT 
     stock_name, 
