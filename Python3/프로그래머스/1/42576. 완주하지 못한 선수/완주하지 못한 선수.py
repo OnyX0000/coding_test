@@ -11,6 +11,7 @@ def solution(participant, completion):
     # 마지막 남은 선수가 완주하지 못한 선수
     return participant[-1]
 
+# 다른 풀이
 # def solution(participant, completion):
 #     # 해시 값을 이용한 합산
 #     hash_sum = 0
