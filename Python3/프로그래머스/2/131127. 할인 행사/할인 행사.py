@@ -1,33 +1,15 @@
 def solution(want, number, discount):
-    required_items = {item: qty for item, qty in zip(want, number)}
+    answer = 0
+    want_dict = {}
     
-    num_days = 0
-    n = len(discount)
-    window_size = sum(number)
+    for i in range(len(discount) - 9) :
+        temp = discount[i:i + 10]
+        flag = 0
+        for j in range(len(want)) :
+            if temp.count(want[j]) != number[j] :
+                flag = 1
+                break
+        if flag == 0 :
+            answer += 1
 
-    current_window = {}
-    for item in discount[:window_size]:
-        if item in current_window:
-            current_window[item] += 1
-        else:
-            current_window[item] = 1
-
-    if all(current_window.get(item, 0) >= required_items[item] for item in required_items):
-        num_days += 1
-
-    for i in range(window_size, n):
-        outgoing_item = discount[i - window_size]
-        current_window[outgoing_item] -= 1
-        if current_window[outgoing_item] == 0:
-            del current_window[outgoing_item]
-
-        incoming_item = discount[i]
-        if incoming_item in current_window:
-            current_window[incoming_item] += 1
-        else:
-            current_window[incoming_item] = 1
-            
-        if all(current_window.get(item, 0) >= required_items[item] for item in required_items):
-            num_days += 1
-
-    return num_days
+    return answer
