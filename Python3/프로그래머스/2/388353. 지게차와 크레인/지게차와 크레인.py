@@ -1,60 +1,47 @@
 def solution(storage, requests):
     from collections import deque
-
-    n = len(storage)
-    m = len(storage[0])
+    
+    # 창고 크기 및 2D 리스트 변환
+    n, m = len(storage), len(storage[0])
     grid = [list(row) for row in storage]
 
-    # 외부와 연결된 빈 공간 영역을 반환하는 함수
-    def get_exterior(grid) :
-        exterior = [[False] * m for _ in range(n)]
-        dq = deque()
-        # 창고 경계에 있는 빈 셀을 시작점으로 설정
-        for i in range(n) :
-            for j in range(m) :
-                if (i == 0 or i == n - 1 or j == 0 or j == m - 1) and grid[i][j] == '.' :
-                    exterior[i][j] = True
-                    dq.append((i, j))
-        while dq :
-            x, y = dq.popleft()
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)] :
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < n and 0 <= ny < m :
-                    if grid[nx][ny] == '.' and not exterior[nx][ny] :
-                        exterior[nx][ny] = True
-                        dq.append((nx, ny))
-        return exterior
+    # 방향 벡터 (상, 하, 좌, 우)
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-    # (i, j)에 위치한 컨테이너가 접근 가능한지 판단하는 함수
-    def is_accessible(i, j, grid, exterior) :
-        # 4방향 중 하나라도 창고 외부와 연결되어 있으면 접근 가능
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)] :
-            nx, ny = i + dx, j + dy
-            # 인접 셀이 창고 외부면 바로 접근 가능
-            if not (0 <= nx < n and 0 <= ny < m) :
-                return True
-            # 인접 셀이 비어있고, 그 빈 공간이 외부와 연결되어 있는 경우
-            if grid[nx][ny] == '.' and exterior[nx][ny] :
-                return True
-        return False
+    # 특정 위치가 접근 가능한지 확인
+    def is_accessible(x, y) :
+        if x in {0, n-1} or y in {0, m-1} :  # 테두리에 위치
+            return True
+        return any(0 <= nx < n and 0 <= ny < m and grid[nx][ny] == '.'
+                   for dx, dy in directions if (nx := x + dx, ny := y + dy))
 
-    # 요청 처리
-    for req in requests :
-        container_type = req[0]  # 요청 알파벳은 첫 글자
-        if len(req) == 2 :
-            # 크레인 사용: 해당 타입의 모든 컨테이너 제거
+    # BFS를 사용하여 접근 가능한 같은 알파벳 그룹 제거
+    def bfs_remove(x, y, target) :
+        queue = deque([(x, y)])
+        grid[x][y] = '.'
+        while queue :
+            cx, cy = queue.popleft()
+            for dx, dy in directions :
+                nx, ny = cx + dx, cy + dy
+                if 0 <= nx < n and 0 <= ny < m and grid[nx][ny] == target and is_accessible(nx, ny) :
+                    grid[nx][ny] = '.'
+                    queue.append((nx, ny))
+
+    # 출고 요청 순차 처리
+    for request in requests :
+        target = request[0]
+
+        if len(request) == 1 :  # 지게차 요청
             for i in range(n) :
                 for j in range(m) :
-                    if grid[i][j] == container_type :
-                        grid[i][j] = '.'
-        else :
-            # 지게차 사용: 접근 가능한 컨테이너만 제거
-            exterior = get_exterior(grid)
+                    if grid[i][j] == target and is_accessible(i, j) :
+                        bfs_remove(i, j, target)
+
+        else:  # 크레인 요청 (해당 컨테이너 전부 제거)
             for i in range(n) :
                 for j in range(m) :
-                    if grid[i][j] == container_type and is_accessible(i, j, grid, exterior) :
+                    if grid[i][j] == target :
                         grid[i][j] = '.'
 
-    # 남아있는 컨테이너 수 계산 후 반환
-    answer = sum(1 for i in range(n) for j in range(m) if grid[i][j] != '.')
-    return answer
+    # 남은 컨테이너 개수 반환
+    return sum(cell != '.' for row in grid for cell in row) + 1
