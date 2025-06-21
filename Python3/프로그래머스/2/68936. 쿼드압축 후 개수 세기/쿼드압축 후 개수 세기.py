@@ -11,7 +11,7 @@ def solution(arr):
             else :
                 continue
             break
-        else:
+        else :
             return Counter({initial : 1})
 
         # 4개로 분할하여 재귀적으로 탐색
